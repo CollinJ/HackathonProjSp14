@@ -28,9 +28,9 @@ def on_key_press(symbol, modifiers):
         tx += step_size
     if symbol == pyglet.window.key.LEFT:
         tx -= step_size
-    if symbol == pyglet.window.key.MINUS:
-        tz += step_size
     if symbol == pyglet.window.key.EQUAL:
+        tz += step_size
+    if symbol == pyglet.window.key.MINUS:
         tz -= step_size
     if symbol == pyglet.window.key._0:
         ry += 10
@@ -47,7 +47,7 @@ def on_resize(width, height):
     glViewport(0, 0, width, height)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(60., width / float(height), .1, 1000.)
+    gluPerspective(45., width / float(height), .1, 1000.)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     return pyglet.event.EVENT_HANDLED
@@ -58,6 +58,8 @@ pyglet.clock.schedule(update)
 
 @window.event
 def on_draw():
+    r = 0.4
+    p = 2.0
     def vec(*args):
         return (GLfloat * len(args))(*args)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -68,27 +70,32 @@ def on_draw():
     one = True
     sphere2 = gluNewQuadric()
 
+    
     glTranslatef(-tx,-ty,tz)
-    glRotatef(ry,0,1,0)
+    glTranslatef(-gameWidth / 2.0 / p + 0.25, -gameHeight / 2.0 / p + 0.25, -gameDepth / p)
+    glTranslatef(gameWidth / 2.0 / p, 0, -gameDepth / 2.0 / p)
+    glRotatef(ry, 0, 1.0, 0)
+
+    glTranslatef(-gameWidth / 2.0 / p, 0, -gameDepth/ 2.0 / p)
+
     for i in range(len(vertexList)):
-        x = vertexList[i][0]
-        y = vertexList[i][1]
-        z = vertexList[i][2]
-        glTranslatef(x/2.0, y/2.0, z/2.0)
-        if (one):
-            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(1, 0, 1, 1))
-            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
-            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
+        x = vertexList[i][0] / p
+        y = vertexList[i][1] / p
+        z = vertexList[i][2] / p
+        num = vertexList[i][3]
+        glTranslatef(x, y, z)
+        if (1 == num):
+            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(1, 0, 0, 1))
+            #glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(1, 1, 1, 1))
+            #glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 20)
             s = sphere
-            one = False
         else:
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(0, 0, 1, 1))
-            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
-            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
+            #glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(1, 1, 1, 1))
+            #glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 20)
             s = sphere2
-            one = True
-        gluSphere(s, 0.2, 50, 50)
-        glTranslatef(-x/2.0, -y/2.0, -z/2.0)
+        gluSphere(s, r/p, 50, 50)
+        glTranslatef(-x, -y, -z)
     
 def setup():
     # One-time GL setup
@@ -98,7 +105,7 @@ def setup():
     glEnable(GL_CULL_FACE)
 
     # Uncomment this line for a wireframe view
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    #glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
     # Simple light setup.  On Windows GL_LIGHT0 is enabled by default,
     # but this is not the case on Linux or Mac, so remember to always 
@@ -119,10 +126,14 @@ def setup():
     glLightfv(GL_LIGHT1, GL_SPECULAR, vec(1, 1, 1, 1))
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(1, 0, 0, 1))
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
+    #glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(1, 1, 1, 1))
+    #glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 20)
 
-a = GameOfLife(7, 7, 7)
+
+gameWidth = 4
+gameHeight = 4
+gameDepth = 4
+a = GameOfLife(gameWidth, gameHeight, gameDepth)
 setup()
 tx = ty = ry = 0
 tz = -1
