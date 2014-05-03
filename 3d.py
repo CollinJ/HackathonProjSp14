@@ -2,6 +2,9 @@ from math import *
 
 from pyglet.gl import *
 import pyglet
+from life import *
+from pyglet.window import key
+
 
 try:
     # Try and create a window with multisampling (antialiasing)
@@ -11,6 +14,7 @@ try:
 except pyglet.window.NoSuchConfigException:
     # Fall back to no multisampling for old hardware
     window = pyglet.window.Window(resizable=True)
+    
 
 @window.event
 def on_resize(width, height):
@@ -18,7 +22,7 @@ def on_resize(width, height):
     glViewport(0, 0, width, height)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(45., width / float(height), .1, 1000.)
+    gluLookAt(0, 0, -1, 0, 0, 0, 0, 1, 0)
     glMatrixMode(GL_MODELVIEW)
     return pyglet.event.EVENT_HANDLED
 
@@ -38,7 +42,8 @@ def on_draw():
         return (GLfloat * len(args))(*args)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
-    vertexList = [[1, 1, -4], [-1, 1, -4], [-1, -1, -4], [1, -1, -4], [0, 0, -4], [1, 0, -4], [-1, 0, -4], [0, 1, -4], [0, -1, -4]]
+    vertexList = a.getVertexList()
+    #vertexList = [[1, 1, -4], [-1, 1, -4], [-1, -1, -4], [1, -1, -4], [0, 0, -4], [1, 0, -4], [-1, 0, -4], [0, 1, -4], [0, -1, -4]]
     sphere = gluNewQuadric()
     one = True
     sphere2 = gluNewQuadric()
@@ -95,6 +100,7 @@ def setup():
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
 
+a = GameOfLife(5, 5, 5)
 setup()
 rx = ry = rz = 0
 
