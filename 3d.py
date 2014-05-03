@@ -7,7 +7,7 @@ from pyglet.window import key
 
 
 try:
-    # Try and create a window with multisampling (antialiasing)
+    # Tty and create a window with multisampling (antialiasing)
     config = Config(sample_buffers=1, samples=4, 
                     depth_size=16, double_buffer=True,)
     window = pyglet.window.Window(resizable=True, config=config)
@@ -17,23 +17,40 @@ except pyglet.window.NoSuchConfigException:
     
 
 @window.event
+def on_key_press(symbol, modifiers):
+    step_size = .25
+    global tx, ty, tz, ry
+    if symbol == pyglet.window.key.UP:
+        ty += step_size
+    if symbol == pyglet.window.key.DOWN:
+        ty -= step_size
+    if symbol == pyglet.window.key.RIGHT:
+        tx += step_size
+    if symbol == pyglet.window.key.LEFT:
+        tx -= step_size
+    if symbol == pyglet.window.key.MINUS:
+        tz += step_size
+    if symbol == pyglet.window.key.EQUAL:
+        tz -= step_size
+    if symbol == pyglet.window.key._0:
+        ry += 10
+        ry %= 360
+    if symbol == pyglet.window.key._9:
+        ry -= 10
+        ry %= 360
+        
+@window.event
 def on_resize(width, height):
     # Override the default on_resize handler to create a 3D projection
     glViewport(0, 0, width, height)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluLookAt(0, 0, -1, 0, 0, 0, 0, 1, 0)
     glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
     return pyglet.event.EVENT_HANDLED
 
 def update(dt):
-    global rx, ry, rz
-    rx += dt * 1
-    ry += dt * 80
-    rz += dt * 30
-    rx %= 360
-    ry %= 360
-    rz %= 360
+    pass
 pyglet.clock.schedule(update)
 
 @window.event
@@ -48,6 +65,8 @@ def on_draw():
     one = True
     sphere2 = gluNewQuadric()
 
+    glTranslatef(-tx,-ty,tz)
+    glRotatef(ry,0,1,0)
     for i in range(len(vertexList)):
         x = vertexList[i][0]
         y = vertexList[i][1]
@@ -65,18 +84,18 @@ def on_draw():
             glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
             s = sphere2
             one = True
-        gluSphere(s, 0.4, 50, 50)
+        gluSphere(s, 0.4, 100, 100)
         glTranslatef(-x, -y, -z)
     
 def setup():
     # One-time GL setup
-    glClearColor(1, 1, 1, 1)
+    glClearColor(0, 0, 0, 1)
     glColor3f(1, 0, 0)
-    glEnable(GL_DEPTH_TEST)
-    glEnable(GL_CULL_FACE)
+    #glEnable(GL_DEPTH_TEST)
+    #glEnable(GL_CULL_FACE)
 
     # Uncomment this line for a wireframe view
-    #glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
     # Simple light setup.  On Windows GL_LIGHT0 is enabled by default,
     # but this is not the case on Linux or Mac, so remember to always 
@@ -102,6 +121,7 @@ def setup():
 
 a = GameOfLife(5, 5, 5)
 setup()
-rx = ry = rz = 0
+tx = ty = tz = ry = 0
+
 
 pyglet.app.run()
