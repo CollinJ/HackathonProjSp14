@@ -1,4 +1,4 @@
-from math import pi, sin, cos
+from math import *
 
 from pyglet.gl import *
 import pyglet
@@ -40,7 +40,8 @@ def on_draw():
     glRotatef(rz, 0, 0, 1)
     glRotatef(ry, 0, 1, 0)
     glRotatef(rx, 1, 0, 0)
-    torus.draw()
+    sphere.draw()
+    
 
 def setup():
     # One-time GL setup
@@ -73,6 +74,60 @@ def setup():
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(0.5, 0, 0.3, 1))
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(1, 1, 1, 1))
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50)
+
+class Sphere(object):
+    def __init__(self, r, center_x, center_y, center_z):
+        vertices = []
+        normals = []
+        slices = 50
+        u_step = 2 * r / (slices - 1)
+        u = -r
+        for i in range(slices):
+            slice_r = sqrt(r**2 - u**2)
+            u += u_step
+            for j in range(slices):
+
+                x = slice_r * cos((2 * j * pi * slice_r) / (slices - 1 ) ) + center_x
+                y = slice_r * sin((2 * j * pi * slice_r) / (slices - 1 ) ) + center_y
+                z = u + center_z
+
+                nx = x - center_x
+                ny = y - center_y
+                nz = z - center_z
+
+                vertices.extend([x, y, z])
+                normals.extend([nx, ny, nz])
+
+        vertices =  (GLfloat * len(vertices))(*vertices)
+        normals = (GLfloat * len(normals))(*normals)
+
+        # Create a list of triangle indices.
+        indices = []
+        for i in range(slices - 1):
+            for j in range(slices - 1):
+                p = i * slices + j
+                indices.extend([p, p + slices, p + slices + 1])
+                indices.extend([p,  p + slices + 1, p + 1])
+        indices = (GLuint * len(indices))(*indices)
+
+        # Compile a display list
+        self.list = glGenLists(1)
+        glNewList(self.list, GL_COMPILE)
+
+        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glEnableClientState(GL_NORMAL_ARRAY)
+        glVertexPointer(3, GL_FLOAT, 0, vertices)
+        glNormalPointer(GL_FLOAT, 0, normals)
+        glDrawElements(GL_TRIANGLES, len(indices), GL_UNSIGNED_INT, indices)
+        glPopClientAttrib()
+
+        glEndList() 
+
+
+    def draw(self):
+        glCallList(self.list)
+        
 
 class Torus(object):
     def __init__(self, radius, inner_radius, slices, inner_slices):
@@ -134,9 +189,12 @@ class Torus(object):
 
     def draw(self):
         glCallList(self.list)
-
+    
+        
+        
 setup()
 torus = Torus(1, 0.3, 50, 30)
+sphere = Sphere(1, 0, 0, 0)
 rx = ry = rz = 0
 
 pyglet.app.run()
