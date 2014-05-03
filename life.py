@@ -31,7 +31,7 @@ class GameOfLife(object):
             for y in xrange(self.y_size):
                 for z in xrange(self.z_size):
                     n = self.neighbors(x,y,z)
-                    if 8 <= n <= 9:
+                    if 8 <= n <= 10:
                         next_map[x][y][z] = 1
                         continue
                     elif 6 <= n <= 7:

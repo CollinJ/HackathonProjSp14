@@ -38,6 +38,8 @@ def on_key_press(symbol, modifiers):
     if symbol == pyglet.window.key._9:
         ry -= 10
         ry %= 360
+    if symbol == pyglet.window.key.S:
+        a.update()
         
 @window.event
 def on_resize(width, height):
@@ -92,11 +94,11 @@ def setup():
     # One-time GL setup
     glClearColor(0, 0, 0, 1)
     glColor3f(1, 0, 0)
-    #glEnable(GL_DEPTH_TEST)
-    #glEnable(GL_CULL_FACE)
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_CULL_FACE)
 
     # Uncomment this line for a wireframe view
-    #glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
     # Simple light setup.  On Windows GL_LIGHT0 is enabled by default,
     # but this is not the case on Linux or Mac, so remember to always 
@@ -120,7 +122,7 @@ def setup():
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
 
-a = GameOfLife(5, 5, 5)
+a = GameOfLife(7, 7, 7)
 setup()
 tx = ty = ry = 0
 tz = -1
