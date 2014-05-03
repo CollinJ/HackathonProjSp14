@@ -18,7 +18,7 @@ def on_resize(width, height):
     glViewport(0, 0, width, height)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(60., width / float(height), .1, 1000.)
+    gluPerspective(45., width / float(height), .1, 1000.)
     glMatrixMode(GL_MODELVIEW)
     return pyglet.event.EVENT_HANDLED
 
@@ -34,13 +34,35 @@ pyglet.clock.schedule(update)
 
 @window.event
 def on_draw():
+    def vec(*args):
+        return (GLfloat * len(args))(*args)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
+    vertexList = [[1, 1, -4], [-1, 1, -4], [-1, -1, -4], [1, -1, -4], [0, 0, -4], [1, 0, -4], [-1, 0, -4], [0, 1, -4], [0, -1, -4]]
     sphere = gluNewQuadric()
-    glTranslatef(0,1,-3)
-    gluSphere(sphere, 1, 50, 50)
-    glTranslatef(0,-1,-1)
-    gluSphere(sphere, 1, 50, 50)
+    one = True
+    sphere2 = gluNewQuadric()
+
+    for i in range(len(vertexList)):
+        x = vertexList[i][0]
+        y = vertexList[i][1]
+        z = vertexList[i][2]
+        glTranslatef(x, y, z)
+        if (one):
+            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(1, 0, 1, 1))
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
+            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
+            s = sphere
+            one = False
+        else:
+            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(0, 0, 1, 1))
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
+            glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
+            s = sphere2
+            one = True
+        gluSphere(s, 0.4, 50, 50)
+        glTranslatef(-x, -y, -z)
+    
 def setup():
     # One-time GL setup
     glClearColor(1, 1, 1, 1)
@@ -63,133 +85,16 @@ def setup():
         return (GLfloat * len(args))(*args)
 
     glLightfv(GL_LIGHT0, GL_POSITION, vec(.5, .5, 1, 0))
-    glLightfv(GL_LIGHT0, GL_SPECULAR, vec(.5, .5, 1, 1))
+    glLightfv(GL_LIGHT0, GL_SPECULAR, vec(0.5, .5, 0.5, 1))
     glLightfv(GL_LIGHT0, GL_DIFFUSE, vec(1, 1, 1, 1))
     glLightfv(GL_LIGHT1, GL_POSITION, vec(1, 0, .5, 0))
     glLightfv(GL_LIGHT1, GL_DIFFUSE, vec(.5, .5, .5, 1))
     glLightfv(GL_LIGHT1, GL_SPECULAR, vec(1, 1, 1, 1))
 
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(0.5, 0, 0.3, 1))
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(1, 1, 1, 1))
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50)
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(1, 0, 0, 1))
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
 
-class Sphere(object):
-    def __init__(self, r, center_x, center_y, center_z):
-        vertices = []
-        normals = []
-        slices = 50
-        u_step = 2 * r / (slices - 1)
-        u = -r
-        for i in range(slices):
-            slice_r = sqrt(r**2 - u**2)
-            u += u_step
-            for j in range(slices):
-
-                x = slice_r * cos((2 * j * pi * slice_r) / (slices - 1 ) ) + center_x
-                y = slice_r * sin((2 * j * pi * slice_r) / (slices - 1 ) ) + center_y
-                z = u + center_z
-
-                nx = x - center_x
-                ny = y - center_y
-                nz = z - center_z
-
-                vertices.extend([x, y, z])
-                normals.extend([nx, ny, nz])
-
-        vertices =  (GLfloat * len(vertices))(*vertices)
-        normals = (GLfloat * len(normals))(*normals)
-
-        # Create a list of triangle indices.
-        indices = []
-        for i in range(slices - 1):
-            for j in range(slices - 1):
-                p = i * slices + j
-                indices.extend([p, p + slices, p + slices + 1])
-                indices.extend([p,  p + slices + 1, p + 1])
-        indices = (GLuint * len(indices))(*indices)
-
-        # Compile a display list
-        self.list = glGenLists(1)
-        glNewList(self.list, GL_COMPILE)
-
-        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glEnableClientState(GL_NORMAL_ARRAY)
-        glVertexPointer(3, GL_FLOAT, 0, vertices)
-        glNormalPointer(GL_FLOAT, 0, normals)
-        glDrawElements(GL_TRIANGLES, len(indices), GL_UNSIGNED_INT, indices)
-        glPopClientAttrib()
-
-        glEndList() 
-
-
-    def draw(self):
-        glCallList(self.list)
-        
-
-class Torus(object):
-    def __init__(self, radius, inner_radius, slices, inner_slices):
-        # Create the vertex and normal arrays.
-        vertices = []
-        normals = []
-
-        u_step = 2 * pi / (slices - 1)
-        v_step = 2 * pi / (inner_slices - 1)
-        u = 0.
-        for i in range(slices):
-            cos_u = cos(u)
-            sin_u = sin(u)
-            v = 0.
-            for j in range(inner_slices):
-                cos_v = cos(v)
-                sin_v = sin(v)
-
-                d = (radius + inner_radius * cos_v)
-                x = d * cos_u
-                y = d * sin_u
-                z = inner_radius * sin_v
-
-                nx = cos_u * cos_v
-                ny = sin_u * cos_v
-                nz = sin_v
-
-                vertices.extend([x, y, z])
-                normals.extend([nx, ny, nz])
-                v += v_step
-            u += u_step
-
-        # Create ctypes arrays of the lists
-        vertices = (GLfloat * len(vertices))(*vertices)
-        normals = (GLfloat * len(normals))(*normals)
-
-        # Create a list of triangle indices.
-        indices = []
-        for i in range(slices - 1):
-            for j in range(inner_slices - 1):
-                p = i * inner_slices + j
-                indices.extend([p, p + inner_slices, p + inner_slices + 1])
-                indices.extend([p,  p + inner_slices + 1, p + 1])
-        indices = (GLuint * len(indices))(*indices)
-
-        # Compile a display list
-        self.list = glGenLists(1)
-        glNewList(self.list, GL_COMPILE)
-
-        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
-        glEnableClientState(GL_VERTEX_ARRAY)
-        glEnableClientState(GL_NORMAL_ARRAY)
-        glVertexPointer(3, GL_FLOAT, 0, vertices)
-        glNormalPointer(GL_FLOAT, 0, normals)
-        glDrawElements(GL_TRIANGLES, len(indices), GL_UNSIGNED_INT, indices)
-        glPopClientAttrib()
-
-        glEndList()
-
-    def draw(self):
-        glCallList(self.list)
-    
-        
-        
 setup()
 rx = ry = rz = 0
 
