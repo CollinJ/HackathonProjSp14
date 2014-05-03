@@ -6,6 +6,8 @@ from life import *
 from pyglet.window import key
 
 
+tx = ty = ry = 0
+tz = -1
 try:
     # Tty and create a window with multisampling (antialiasing)
     config = Config(sample_buffers=1, samples=4, 
@@ -40,6 +42,11 @@ def on_key_press(symbol, modifiers):
         ry %= 360
     if symbol == pyglet.window.key.S:
         a.update()
+    if symbol == pyglet.window.key.R:
+        a.reset()
+    if symbol == pyglet.window.key.P:
+        global play
+        play = not play
         
 @window.event
 def on_resize(width, height):
@@ -53,7 +60,9 @@ def on_resize(width, height):
     return pyglet.event.EVENT_HANDLED
 
 def update(dt):
-    pass
+    if play:
+        a.update()
+
 pyglet.clock.schedule(update)
 
 @window.event
@@ -130,13 +139,16 @@ def setup():
     #glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 20)
 
 
-gameWidth = 4
-gameHeight = 4
-gameDepth = 4
-a = GameOfLife(gameWidth, gameHeight, gameDepth)
+play = False
+gameWidth = 25
+gameHeight = 25
+gameDepth = 25
+#a = GameOfLife2D(gameWidth, gameHeight, gameDepth, None)
+#a = GameOfLife(gameWidth, gameHeight, gameDepth, None, [5], [4,5,9])
+a = GameOfLife(gameWidth, gameHeight, gameDepth, None, [5, 6], [4])
+a.update()
+a.update()
 setup()
-tx = ty = ry = 0
-tz = -1
 
 
 pyglet.app.run()
