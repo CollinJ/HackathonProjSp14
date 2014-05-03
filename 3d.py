@@ -18,7 +18,7 @@ except pyglet.window.NoSuchConfigException:
 
 @window.event
 def on_key_press(symbol, modifiers):
-    step_size = .25
+    step_size = 1
     global tx, ty, tz, ry
     if symbol == pyglet.window.key.UP:
         ty += step_size
@@ -98,7 +98,7 @@ def setup():
     glEnable(GL_CULL_FACE)
 
     # Uncomment this line for a wireframe view
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    #glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
     # Simple light setup.  On Windows GL_LIGHT0 is enabled by default,
     # but this is not the case on Linux or Mac, so remember to always 
@@ -122,7 +122,7 @@ def setup():
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
 
-a = GameOfLife(7, 7, 7)
+a = GameOfLife(10, 10, 10)
 setup()
 tx = ty = ry = 0
 tz = -1
