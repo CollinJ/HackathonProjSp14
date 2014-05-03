@@ -36,8 +36,10 @@ pyglet.clock.schedule(update)
 def on_draw():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
-    glTranslatef(0,0,-4)
     sphere = gluNewQuadric()
+    glTranslatef(0,1,-3)
+    gluSphere(sphere, 1, 50, 50)
+    glTranslatef(0,-1,-1)
     gluSphere(sphere, 1, 50, 50)
 def setup():
     # One-time GL setup
