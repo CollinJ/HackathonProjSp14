@@ -45,6 +45,7 @@ def on_resize(width, height):
     glViewport(0, 0, width, height)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
+    gluPerspective(60., width / float(height), .1, 1000.)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     return pyglet.event.EVENT_HANDLED
@@ -71,7 +72,7 @@ def on_draw():
         x = vertexList[i][0]
         y = vertexList[i][1]
         z = vertexList[i][2]
-        glTranslatef(x, y, z)
+        glTranslatef(x/2.0, y/2.0, z/2.0)
         if (one):
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, vec(1, 0, 1, 1))
             glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, vec(0, 0, 0, 1))
@@ -84,8 +85,8 @@ def on_draw():
             glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0)
             s = sphere2
             one = True
-        gluSphere(s, 0.4, 100, 100)
-        glTranslatef(-x, -y, -z)
+        gluSphere(s, 0.2, 50, 50)
+        glTranslatef(-x/2.0, -y/2.0, -z/2.0)
     
 def setup():
     # One-time GL setup
@@ -95,7 +96,7 @@ def setup():
     #glEnable(GL_CULL_FACE)
 
     # Uncomment this line for a wireframe view
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+    #glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
     # Simple light setup.  On Windows GL_LIGHT0 is enabled by default,
     # but this is not the case on Linux or Mac, so remember to always 
@@ -121,7 +122,8 @@ def setup():
 
 a = GameOfLife(5, 5, 5)
 setup()
-tx = ty = tz = ry = 0
+tx = ty = ry = 0
+tz = -1
 
 
 pyglet.app.run()
