@@ -6,7 +6,7 @@ from life import *
 from pyglet.window import key
 
 
-tx = ty = ry = 0
+tx = ty = ry = rz = rx = 0
 tz = -1
 try:
     # Tty and create a window with multisampling (antialiasing)
@@ -21,7 +21,7 @@ except pyglet.window.NoSuchConfigException:
 @window.event
 def on_key_press(symbol, modifiers):
     step_size = 1
-    global tx, ty, tz, ry
+    global tx, ty, tz, ry, rz, rx
     if symbol == pyglet.window.key.UP:
         ty += step_size
     if symbol == pyglet.window.key.DOWN:
@@ -40,6 +40,18 @@ def on_key_press(symbol, modifiers):
     if symbol == pyglet.window.key._9:
         ry -= 10
         ry %= 360
+    if symbol == pyglet.window.key.F:
+        rz -= 10
+        rz %= 360
+    if symbol == pyglet.window.key.H:
+        rz += 10
+        rz %= 360
+    if symbol == pyglet.window.key.G:
+        rx -= 10
+        rx %= 360
+    if symbol == pyglet.window.key.T:
+        rx += 10
+        rx %= 360
     if symbol == pyglet.window.key.S:
         a.update()
     if symbol == pyglet.window.key.R:
@@ -83,11 +95,13 @@ def on_draw():
     glTranslatef(-tx,-ty,tz)
     glTranslatef(-gameWidth / 2.0 / p + 0.25, -gameHeight / 2.0 / p + 0.25, -gameDepth / p)
     glTranslatef(gameWidth / 2.0 / p, 0, -gameDepth / 2.0 / p)
+    glRotatef(rx, 1.0, 0, 0)
+    glRotatef(rz, 0, 0, 1.0)
     glRotatef(ry, 0, 1.0, 0)
 
     glTranslatef(-gameWidth / 2.0 / p, 0, -gameDepth/ 2.0 / p)
 
-    for i in range(len(vertexList)):
+    for i in range( len(vertexList) ):
         x = vertexList[i][0] / p
         y = vertexList[i][1] / p
         z = vertexList[i][2] / p
@@ -140,13 +154,15 @@ def setup():
 
 
 play = False
-gameWidth = 25
-gameHeight = 25
-gameDepth = 25
+gameWidth = 5
+gameHeight = 5
+gameDepth = 5
 #a = GameOfLife2D(gameWidth, gameHeight, gameDepth, None)
 #a = GameOfLife(gameWidth, gameHeight, gameDepth, None, [5], [4,5,9])
-a = GameOfLife(gameWidth, gameHeight, gameDepth, None, [5, 6], [4])
-a.update()
+#a = GameOfLife(gameWidth, gameHeight, gameDepth, None, [5, 6], [4])
+#a = GameOfWar(gameWidth, gameHeight, gameDepth, None)
+a = GameOfWar(5, 5, 5, randomMap(5, 5, 5, 4))
+#a.update()
 a.update()
 setup()
 
